@@ -1,0 +1,6 @@
+all:
+  hosts:
+    target_container:
+      ansible_host: target_container
+      ansible_user: root
+      ansible_password: password

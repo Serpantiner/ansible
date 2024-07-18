@@ -1,0 +1,11 @@
+FROM python:3.9-slim-buster
+
+RUN apt-get update && \
+    apt-get install -y ssh sshpass docker.io && \
+    pip install ansible docker && \
+    groupadd -r docker && \
+    usermod -aG docker root
+
+WORKDIR /ansible
+
+CMD ["tail", "-f", "/dev/null"]

@@ -1,0 +1,11 @@
+FROM python:3.9-slim-buster
+
+RUN apt-get update && \
+    apt-get install -y ssh && \
+    mkdir -p /run/sshd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    echo 'root:password' | chpasswd
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]

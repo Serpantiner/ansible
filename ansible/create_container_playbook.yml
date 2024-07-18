@@ -1,0 +1,48 @@
+---
+- name: Create and configure target container
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Create target container
+      command: >
+        docker run -d --name target_container --network ansible_network
+        python:3.9-slim-buster tail -f /dev/null
+
+    - name: Wait for target container to be ready
+      wait_for:
+        timeout: 10
+
+    - name: Install SSH in target container
+      command: >
+        docker exec target_container /bin/sh -c
+        "apt-get update && apt-get install -y ssh &&
+        mkdir -p /run/sshd &&
+        sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+        echo 'root:password' | chpasswd &&
+        /usr/sbin/sshd"
+
+- name: Configure target container
+  hosts: target_container
+  gather_facts: false
+
+  tasks:
+    - name: Create a test file
+      file:
+        path: /tmp/test_file.txt
+        state: touch
+        mode: "0644"
+      
+    - name: Add content to the test file
+      lineinfile:
+        path: /tmp/test_file.txt
+        line: "This file was created by Ansible"
+
+    - name: Display file contents
+      command: cat /tmp/test_file.txt
+      register: file_contents
+
+    - name: Show file contents
+      debug:
+        var: file_contents.stdout
