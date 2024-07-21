@@ -1,11 +1,14 @@
 FROM python:3.9-slim-buster
 
 RUN apt-get update && \
-    apt-get install -y ssh && \
+    apt-get install -y ssh supervisor && \
     mkdir -p /run/sshd && \
     sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    echo 'root:password' | chpasswd
+    echo 'root:password' | chpasswd && \
+    mkdir -p /var/log/supervisor
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 22
 
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
