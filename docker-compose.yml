@@ -1,7 +1,7 @@
 services:
   ansible_container:
     build:
-      context: ./Docker
+      context: .
       dockerfile: Dockerfile-ansible
     container_name: ansible_container
     volumes:
@@ -10,6 +10,8 @@ services:
     privileged: true
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - "8080:8080"
 
 networks:
   default:
